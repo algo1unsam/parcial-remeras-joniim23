@@ -3,79 +3,81 @@ class Remera
 	var property talle /* numero */
 	var property color /* cadena */
 	var property costoBase = 80
-	method precio()
-	method recargaPorTalle() 
-	{ 
-		if( talle > 40 )
-			costoBase += 20
+	var coloresBase = [ "negro", "blanco", "gris" ] 
+	
+	method recargaPorTalle() { 
+		if  ( 48 >= talle and 41 <= talle) return 20
+		if ( 32 <= talle and talle <= 40 ) return 0
+		else throw new Exception ("Talle inválido")
 	}
 }
 
 class RLisa inherits Remera
 {
-	const tipo = "lisa"
-	
-	method tipo() = tipo
+	method autor() = "vacio"
 	
 	method recargaPorColor()
 	{
-		if(color == "otro")
-			costoBase += (costoBase * 0.1)
+		if( self.buscarSiTieneColorBase() ) return 0
+		else return 0.1
 	}
 	
-	override method precio()
-	{
-		self.recargaPorTalle()
-		self.recargaPorColor()
-		return costoBase
+	method buscarSiTieneColorBase() = coloresBase.contains(color)
+	
+	method precio() {
+		var costoTotal = costoBase
+		costoTotal += self.recargaPorTalle()
+		costoTotal += costoTotal * self.recargaPorColor()
+		return costoTotal
 	}
+	
+	method descuento (sinUsar) = 0.1
+	
 }
 
 class RBordada inherits Remera
 {
-	const tipo = "bordada"
 	const property cantidadDeColores
 	
-	method tipo() = tipo
+	method autor() = "vacio"
 	
 	// TODO Mal calculado el recargo, no coincide con el enunciado.
-	method recargaPorBordado() { costoBase += 20 + cantidadDeColores * 10 }
+	method recargaPorBordado() = (cantidadDeColores * 10 ).max(20) 
 	
-	override method precio()
-	{	
-		// TODO Esto no funciona, tiene problemas con el manejo del efecto, deberías calcular el precio en el momento.
-		self.recargaPorTalle()
-		self.recargaPorBordado()
-		return costoBase
-	}
+	method descuento (sinUsar) = 0
+	 
+	//TODO Esto no funciona, tiene problemas con el manejo del efecto, deberías calcular el precio en el momento.
+	method precio() =
+		costoBase + self.recargaPorTalle() + self.recargaPorBordado() 
+
 }
 
 class RSublimada inherits Remera
 {
-	const tipo = "sublimada"
 	var property ancho
 	var property alto
 	
 	// TODO Los costos por derechos dependen de la marca, deberías modelarlo como un objeto.
-	var property marca
-	var property costoPorDerechos
-	
-	method tipo() = tipo
+	//var property marca
+	var property autor
 	
 	method superficie() = ancho * alto
 	
-	method recargaPorSublimada() { costoBase += self.superficie() * 0.5 }
+	method recargaPorSublimada() = 
+		self.superficie() * 0.5
 	
-	method recargaPorDerechos() { costoBase += costoPorDerechos }
+	method recargaPorDerechos() = autor.costoPorDerechos() 
 	
-	override method precio()
-	{
-		// TODO Grave: mal manejado el efecto
-		self.recargaPorTalle()
-		self.recargaPorSublimada()
-		self.recargaPorDerechos()
-		return costoBase
-	}	
-	
+	// TODO Grave: mal manejado el efecto	
+ 	method precio() =
+		costoBase + self.recargaPorTalle() + self.recargaPorSublimada() + self.recargaPorDerechos()
+		
+	method descuento(hayConvenio) {
+		if( hayConvenio ) return 0.2
+		else return 0.1
+	}
 }
 
+class Copyright {
+	var property costoPorDerechos
+}

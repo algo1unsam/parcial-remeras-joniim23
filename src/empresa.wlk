@@ -2,88 +2,59 @@ import remeras.*
 
 object empresa 
 {
-	var sucursales = []
+	var pedidos = []
 	
-	method agregarSucursales (sucursal) { sucursales.add(sucursal) }
+	method agregarPedido (pedido) = pedidos.add(pedido)
 	
-	method totalFacturadoPorEmpresa() = sucursales.sum { sucursal => sucursal.totalFacturado() }
+	method totalFacturadoPorEmpresa() = pedidos.sum { pedido => pedido.costo() }
 	
-	method sucursalQueMasFacturo() = sucursales.max { sucursal => sucursal.totalFacturado() }
+	method totalFacturadoPorSucursal(sucursal) = 
+		self.pedidosDeSucursal(sucursal).sum { pedido => pedido.costo() }
+	method pedidosDeSucursal(sucursal) = pedidos.filter { pedido => pedido.sucursal() == sucursal }
 	
-	method remerasVendidasDeColor(color) = sucursales.sum { sucursal => sucursal.totalDePedidosPorColor(color)}
+	method sucursalQueMasFacturo() = self.sucursales().max {sucursal => self.totalFacturadoPorSucursal(sucursal) }
+	method sucursales() = pedidos.map { pedido => pedido.sucursal() }.asSet()
 	
-	method pedidoMasCaroDeLaEmpresa() = sucursales.max { sucursal => sucursal.pedidoMasCaro() }
+	method pedidosDeColor(color) = pedidos.count{ pedido => pedido.remeraTipo().color() == color }
 	
-	method sucursalesQueVendieronTodosLosTalles() = sucursales.filter { sucursal => sucursal.vendioTodosLosTalles()}
+	method pedidoMasCaroDeLaEmpresa() = pedidos.max { pedido => pedido.costo() }
+	
+	method sucursalesConTotalidadDeTallesVendidos() = self.sucursales().filter { sucursal => self.sucursalQueVendioTodosLosTalles(sucursal) }
+	method sucursalQueVendioTodosLosTalles(sucursal) = self.pedidosDeSucursal(sucursal).all { pedido => pedido.remeraTipo().talle() == (32..48) }
+	
 } 
 
 class Sucursal
 {
 	var property seDescuentaAPartirDe = 10
-	var property descuentoDeRemerasSublimadas = 20
-	var property descuentoNormal = 10
-	var pedidos = []
+
 	var convenios = []
 	
-	method agregarPedidos ( pedido ) { pedidos.add(pedido) } // TODO Por qué agregar pedidos en plural si agrega uno solo?
-	
-	method agregarConvenio ( convenio ) { convenios.add(convenio) } // Este está bien.
-		
-	method descuento (pedido) 
-	{
-		// TODO GRAVE Todo esto debería delegarse en remera y aprovechar el polimorfismo.
-		if ( pedido.cantidadDeRemeras() / seDescuentaAPartirDe >= 1 or pedido.tipo() == "bordada" )
-			return 0
-		if ( self.buscarConvenio(pedido.marca() ) )
-			return descuentoDeRemerasSublimadas
-		else 
-			return descuentoNormal
-	}
+	method agregarConvenio ( convenio ) = convenios.add(convenio) // Este está bien.
 	
 	// TODO Buscar convenio no es un buen nombre para un método que devuelve un booleano
-	method buscarConvenio(convenio) = convenios.contains(convenio) 
-
-	// TODO Este método es innecesario.	
-	method costoPorPedido(pedido)
-	{
-		return pedido.costo()
-	}
+	method hayConvenioCon(convenio) = convenios.contains(convenio)
 	
-	method totalFacturado()= pedidos.sum { pedido => pedido.costo() 
-	}
-	
-	method totalDePedidosPorColor(color) = pedidos.sum{ pedido => pedido.cantidadDeRemerasDeColor(color) }
-	
-	method pedidoMasCaro() = pedidos.max { pedido => pedido.costo() }
-	
-	/* no lo supe resolver */
-	method vendioTodosLosTalles() = pedidos.any { pedido => pedido.talle() == (32..48) }
 }
 
 class Pedido
 {
-	const property tipo /* tipo de remera */
-	var property talle /* numero */
 	const property sucursal /* nombre de sucursal */
-	const property marca = null
+	const property remeraTipo
+	const property cantidadDeRemeras 
 	
-	var remeras = []
-	
-	method agregarRemeras(remera)
-	{
-		if (remera.tipo() == tipo and remera.talle() == talle )
-			remeras.add(remera)
-		else
-			throw new Exception ("La remera no es del tipo " + tipo )
+	//TODO GRAVE Todo esto debería delegarse en remera y aprovechar el polimorfismo.
+	//si sublimadaMarca pertenece a convenios de sucursal, el descuento devuelve 0.2, sino devuelve 0.1
+	method descuento () {
+		if (cantidadDeRemeras >= sucursal.seDescuentaAPartirDe())
+			return remeraTipo.descuento( self.hayConvenio() )
+		else return 0
 	}
 	
-	method cantidadDeRemeras() = remeras.size()
+	method hayConvenio() =
+		sucursal.hayConvenioCon( remeraTipo.autor() )
+		
+	method subtotal() = remeraTipo.precio() * cantidadDeRemeras
 	
-	method cantidadDeRemerasDeColor(color) = remeras.count { remera => remera.color() == color } 
-	
-	method descuento() = sucursal.descuento(self) 
-	
-	method costoParcial() = remeras.sum { remera => remera.precio() }
-	
-	method costo() = self.costoParcial() - self.descuento() * self.costoParcial() / 100
+	method costo() = self.subtotal() - self.descuento() * self.subtotal()
 }

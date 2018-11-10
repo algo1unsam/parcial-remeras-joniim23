@@ -2,92 +2,84 @@ import remeras.*
 import empresa.*
 
 describe "Tests del parcial" {
-	const remeraAzul = new RLisa ( color = "azul", talle = 40 )
-	const remeraNegra = new RLisa ( color = "otro", talle = 40 )
-	const remeraBlanca = new RLisa ( color = "blanca", talle = 48)
-	const remeraBordadaUno = new RBordada ( color = "gris", cantidadDeColores = 3 , talle = 32 )
-	const remeraBordadaDos = new RBordada ( color = "blanca", cantidadDeColores = 4, talle = 45 )
-	const remeraSublimadaDisney =  new RSublimada ( ancho = 10, alto = 15, marca = "disney", costoPorDerechos = 100, color = "negra", talle = 34)
-	const sucursalFlores = new Sucursal( seDescuentaAPartirDe = 8) 
-	const sucursalAvellaneda = new Sucursal( seDescuentaAPartirDe = 5 )
-	const pedidoTalle40 = new Pedido (talle = 40, tipo = "lisa", sucursal = sucursalAvellaneda)
-	const pedidoTalle45 = new Pedido (talle = 45, tipo = "bordada", sucursal = sucursalFlores)
+	const remeraLisaNegra = new RLisa( color = "negro", talle = 40)
+	const remeraLisaAzul = new RLisa( color = "azul", talle = 40)
+	const remeraLisaBlanca = new RLisa( color = "blanco", talle = 41)
+	const remeraLisaVerde = new RLisa( color = "verde", talle = 41)
+	const remeraBordadaAzul = new RBordada( color = "azul", talle = 41, cantidadDeColores = 1)
+	const remeraBordadaBlanca = new RBordada( color = "blanco", talle = 41, cantidadDeColores = 4 )
+	const disney = new Copyright( costoPorDerechos = 100 )
+	const nike = new Copyright( costoPorDerechos = 200 )
+	const remeraDisney = new RSublimada( color = "blanco", talle = 41, ancho = 15, alto = 10, autor = disney )
+	const remeraNike = new RSublimada( color = "blanco", talle = 42, ancho = 15, alto = 10, autor = nike )
+	const flores = new Sucursal(seDescuentaAPartirDe = 10)
+	const avellaneda = new Sucursal(seDescuentaAPartirDe = 3)
+	const pedidoFloresUno = new Pedido(remeraTipo = remeraLisaBlanca, sucursal = flores, cantidadDeRemeras = 5 )
+	const pedidoAvellanedaUno = new Pedido(remeraTipo = remeraLisaBlanca, sucursal = avellaneda, cantidadDeRemeras = 5 )
+	const pedidoFloresDos = new Pedido(remeraTipo = remeraDisney, sucursal = flores, cantidadDeRemeras = 4 )
+	const pedidoAvellanedaDos = new Pedido(remeraTipo = remeraDisney, sucursal = avellaneda, cantidadDeRemeras = 4 )
 	
+	method agregarConveniosASucursales() {
+		flores.agregarConvenio(disney)
+		flores.agregarConvenio(nike)
+		avellaneda.agregarConvenio(disney)
+	}
+	
+	/*method agregarSucursalesAEmpresa() {
+		empresa.agregarSucursal(flores)
+		empresa.agregarSucursal(avellaneda)
+	}*/
+	
+	method agregarPedidosAEmpresa() {
+		empresa.agregarPedido(pedidoFloresUno)
+		empresa.agregarPedido(pedidoAvellanedaUno)
+	}
+	
+	test "Costo de remeras lisas" {
+		assert.equals( 80, remeraLisaNegra.precio() )
+		assert.equals( 88, remeraLisaAzul.precio() )
+		assert.equals( 100, remeraLisaBlanca.precio() )
+		assert.equals( 110, remeraLisaVerde.precio() )
+	}
+	
+	test "Costo de remeras bordadas" {
+		assert.equals( 120, remeraBordadaAzul.precio() )
+		assert.equals( 140, remeraBordadaBlanca.precio() )
+	}
+	
+	test "Costo de remeras sublimadas" {
+		assert.equals( 275, remeraDisney.precio() )
+		assert.equals( 375, remeraNike.precio() )
+	}
+	
+	test "Costo de pedidos" {
+		assert.equals(0, pedidoFloresUno.descuento())
+		assert.equals(0.1, pedidoAvellanedaUno.descuento())
+		assert.equals(500, pedidoFloresUno.costo())
+		assert.equals(450, pedidoAvellanedaUno.costo())
+		assert.equals(990, pedidoAvellanedaDos.costo())
+		self.agregarConveniosASucursales()
+		assert.equals(0.2, pedidoAvellanedaDos.descuento())
+		assert.equals(1100, pedidoFloresDos.costo())
+		assert.equals(880, pedidoAvellanedaDos.costo())
+	}
+	
+	test "Total facturado por la empresa, sucursales y sucursal que mas facturo" {
+		self.agregarPedidosAEmpresa()
+		assert.equals(950, empresa.totalFacturadoPorEmpresa())
+		assert.equals(500, empresa.totalFacturadoPorSucursal(flores))
+		assert.equals(450, empresa.totalFacturadoPorSucursal(avellaneda))
+		assert.equals(flores,empresa.sucursalQueMasFacturo())
+	}
+	
+	test "Cantidad de remeras vendidas por color" {
+		self.agregarPedidosAEmpresa()
+		assert.equals(2, empresa.pedidosDeColor("blanco"))
+	}
+	
+	test "Pedido mas caro de empresa" {
+		self.agregarPedidosAEmpresa()
+		assert.equals(pedidoFloresUno, empresa.pedidoMasCaroDeLaEmpresa())
+	}
 
-	method agregarSucursalesEnEmpresa() {
-		empresa.agregarSucursales(sucursalAvellaneda)
-		empresa.agregarSucursales(sucursalFlores)
-	}
-	
-	method agregarRemerasAPedido(){
-		pedidoTalle40.agregarRemeras(remeraAzul)
-		pedidoTalle40.agregarRemeras(remeraNegra)
-	}
-	
-	method agregarConveniosASucursal(sucursal){
-		sucursal.agregarConvenios("disney")
-		sucursal.agregarConvenios("nike")
-	}
-	
-	method elementosParaCalcularGastos(){
-		sucursalAvellaneda.agregarPedidos(pedidoTalle40)
-		pedidoTalle40.agregarRemeras(remeraAzul)
-		pedidoTalle40.agregarRemeras(remeraAzul)
-		pedidoTalle40.agregarRemeras(remeraAzul)
-		pedidoTalle40.agregarRemeras(remeraAzul)
-		pedidoTalle40.agregarRemeras(remeraAzul)
-		pedidoTalle40.agregarRemeras(remeraAzul)
-	}
-	
-	test "agregar remera de talle 40 en pedidoTalle40"{
-		self.agregarRemerasAPedido()
-		assert.equals(2, pedidoTalle40.cantidadDeRemeras())
-	}
-	
-	test "costo de remeras"{
-		assert.equals(80, remeraAzul.precio())
-		assert.equals(100, remeraBlanca.precio())
-		assert.equals(88, remeraNegra.precio())
-		assert.equals(130, remeraBordadaUno.precio())
-		assert.equals(160, remeraBordadaDos.precio())
-		assert.equals(255, remeraSublimadaDisney.precio())
-	}
-	
-	test "cantidad de remeras de color azul en pedido"{
-		pedidoTalle40.agregarRemeras(remeraAzul)
-		pedidoTalle40.agregarRemeras(remeraAzul)
-		pedidoTalle40.agregarRemeras(remeraAzul)
-		assert.equals(3,pedidoTalle40.cantidadDeRemerasDeColor("azul"))
-	}
-	
-	test "Convenio con nike"{
-		sucursalAvellaneda.agregarConvenio("disney")
-		assert.that(sucursalAvellaneda.buscarConvenio("disney"))
-		
-	}
-	
-	test "costo de pedido es 480 "{
-		self.elementosParaCalcularGastos()
-		assert.equals(480,pedidoTalle40.costo())
-	}
-	
-	test "total facturado por la sucursal avellaneda"{
-		self.elementosParaCalcularGastos()
-		assert.equals(480,sucursalAvellaneda.totalFacturado())
-	}
-	
-	test "total facturado por la empresa"{
-		self.agregarSucursalesEnEmpresa()
-		self.elementosParaCalcularGastos()
-		sucursalFlores.agregarPedidos(pedidoTalle45)
-		pedidoTalle45.agregarRemeras(remeraBordadaDos)
-		assert.equals(160,sucursalFlores.totalFacturado())
-		assert.equals(800,empresa.totalFacturadoPorEmpresa())
-	}
-	
-	test "Cantidad de remeras de color azul"{
-		self.elementosParaCalcularGastos()
-		assert.equals(6,pedidoTalle40.cantidadDeRemerasDeColor("azul"))
-	}
-	
 }
