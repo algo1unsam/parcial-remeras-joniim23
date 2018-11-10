@@ -38,11 +38,12 @@ class RBordada inherits Remera
 	
 	method tipo() = tipo
 	
-	
+	// TODO Mal calculado el recargo, no coincide con el enunciado.
 	method recargaPorBordado() { costoBase += 20 + cantidadDeColores * 10 }
 	
 	override method precio()
-	{
+	{	
+		// TODO Esto no funciona, tiene problemas con el manejo del efecto, deberías calcular el precio en el momento.
 		self.recargaPorTalle()
 		self.recargaPorBordado()
 		return costoBase
@@ -54,6 +55,8 @@ class RSublimada inherits Remera
 	const tipo = "sublimada"
 	var property ancho
 	var property alto
+	
+	// TODO Los costos por derechos dependen de la marca, deberías modelarlo como un objeto.
 	var property marca
 	var property costoPorDerechos
 	
@@ -67,6 +70,7 @@ class RSublimada inherits Remera
 	
 	override method precio()
 	{
+		// TODO Grave: mal manejado el efecto
 		self.recargaPorTalle()
 		self.recargaPorSublimada()
 		self.recargaPorDerechos()

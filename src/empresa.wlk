@@ -25,12 +25,13 @@ class Sucursal
 	var pedidos = []
 	var convenios = []
 	
-	method agregarPedidos ( pedido ) { pedidos.add(pedido) }
+	method agregarPedidos ( pedido ) { pedidos.add(pedido) } // TODO Por qué agregar pedidos en plural si agrega uno solo?
 	
-	method agregarConvenio ( convenio ) { convenios.add(convenio) }
+	method agregarConvenio ( convenio ) { convenios.add(convenio) } // Este está bien.
 		
 	method descuento (pedido) 
 	{
+		// TODO GRAVE Todo esto debería delegarse en remera y aprovechar el polimorfismo.
 		if ( pedido.cantidadDeRemeras() / seDescuentaAPartirDe >= 1 or pedido.tipo() == "bordada" )
 			return 0
 		if ( self.buscarConvenio(pedido.marca() ) )
@@ -39,8 +40,10 @@ class Sucursal
 			return descuentoNormal
 	}
 	
-	method buscarConvenio(convenio) = convenios.contains(convenio)
-	
+	// TODO Buscar convenio no es un buen nombre para un método que devuelve un booleano
+	method buscarConvenio(convenio) = convenios.contains(convenio) 
+
+	// TODO Este método es innecesario.	
 	method costoPorPedido(pedido)
 	{
 		return pedido.costo()
