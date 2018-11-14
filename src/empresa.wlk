@@ -41,13 +41,13 @@ class Pedido
 {
 	const property sucursal /* nombre de sucursal */
 	const property remeraTipo
-	const property cantidadDeRemeras 
+	const property cantidadDeRemeras  
 	
 	//TODO GRAVE Todo esto debería delegarse en remera y aprovechar el polimorfismo.
 	//si sublimadaMarca pertenece a convenios de sucursal, el descuento devuelve 0.2, sino devuelve 0.1
 	method descuento () {
 		if (cantidadDeRemeras >= sucursal.seDescuentaAPartirDe())
-			return remeraTipo.descuento( self.hayConvenio() )
+			return remeraTipo.descuento()
 		else return 0
 	}
 	
