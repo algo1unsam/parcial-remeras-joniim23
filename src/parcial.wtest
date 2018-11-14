@@ -8,27 +8,16 @@ describe "Tests del parcial" {
 	const remeraLisaVerde = new RLisa( color = "verde", talle = 41)
 	const remeraBordadaAzul = new RBordada( color = "azul", talle = 41, cantidadDeColores = 1)
 	const remeraBordadaBlanca = new RBordada( color = "blanco", talle = 41, cantidadDeColores = 4 )
-	const disney = new Copyright( costoPorDerechos = 100 )
-	const nike = new Copyright( costoPorDerechos = 200 )
-	const remeraDisney = new RSublimada( color = "blanco", talle = 41, ancho = 15, alto = 10, autor = disney )
-	const remeraNike = new RSublimada( color = "blanco", talle = 42, ancho = 15, alto = 10, autor = nike )
+	const disney = new Marca( costoPorDerechos = 100, hayConvenio = true )
+	const nike = new Marca( costoPorDerechos = 200, hayConvenio = true)
+	const remeraDisney = new RSublimada( color = "blanco", talle = 41, ancho = 15, alto = 10, marca = disney )
+	const remeraNike = new RSublimada( color = "blanco", talle = 42, ancho = 15, alto = 10, marca = nike )
 	const flores = new Sucursal(seDescuentaAPartirDe = 10)
 	const avellaneda = new Sucursal(seDescuentaAPartirDe = 3)
 	const pedidoFloresUno = new Pedido(remeraTipo = remeraLisaBlanca, sucursal = flores, cantidadDeRemeras = 5 )
 	const pedidoAvellanedaUno = new Pedido(remeraTipo = remeraLisaBlanca, sucursal = avellaneda, cantidadDeRemeras = 5 )
 	const pedidoFloresDos = new Pedido(remeraTipo = remeraDisney, sucursal = flores, cantidadDeRemeras = 4 )
 	const pedidoAvellanedaDos = new Pedido(remeraTipo = remeraDisney, sucursal = avellaneda, cantidadDeRemeras = 4 )
-	
-	method agregarConveniosASucursales() {
-		flores.agregarConvenio(disney)
-		flores.agregarConvenio(nike)
-		avellaneda.agregarConvenio(disney)
-	}
-	
-	/*method agregarSucursalesAEmpresa() {
-		empresa.agregarSucursal(flores)
-		empresa.agregarSucursal(avellaneda)
-	}*/
 	
 	method agregarPedidosAEmpresa() {
 		empresa.agregarPedido(pedidoFloresUno)
@@ -53,13 +42,14 @@ describe "Tests del parcial" {
 	}
 	
 	test "Costo de pedidos" {
-		assert.equals(0, pedidoFloresUno.descuento())
-		assert.equals(0.1, pedidoAvellanedaUno.descuento())
+		assert.equals(1, pedidoFloresUno.descuento())
+		assert.equals(0.9, pedidoAvellanedaUno.descuento())
 		assert.equals(500, pedidoFloresUno.costo())
 		assert.equals(450, pedidoAvellanedaUno.costo())
+		disney.hayConvenio(false)
 		assert.equals(990, pedidoAvellanedaDos.costo())
-		self.agregarConveniosASucursales()
-		assert.equals(0.2, pedidoAvellanedaDos.descuento())
+		disney.hayConvenio(true)
+		assert.equals(0.8, pedidoAvellanedaDos.descuento())
 		assert.equals(1100, pedidoFloresDos.costo())
 		assert.equals(880, pedidoAvellanedaDos.costo())
 	}

@@ -26,35 +26,24 @@ object empresa
 
 class Sucursal
 {
-	var property seDescuentaAPartirDe = 10
-
-	var convenios = []
-	
-	method agregarConvenio ( convenio ) = convenios.add(convenio) // Este está bien.
-	
-	// TODO Buscar convenio no es un buen nombre para un método que devuelve un booleano
-	method hayConvenioCon(convenio) = convenios.contains(convenio)
-	
+	var property seDescuentaAPartirDe = 10	
 }
 
 class Pedido
 {
 	const property sucursal /* nombre de sucursal */
 	const property remeraTipo
-	const property cantidadDeRemeras  
+	const property cantidadDeRemeras
 	
 	//TODO GRAVE Todo esto debería delegarse en remera y aprovechar el polimorfismo.
 	//si sublimadaMarca pertenece a convenios de sucursal, el descuento devuelve 0.2, sino devuelve 0.1
 	method descuento () {
 		if (cantidadDeRemeras >= sucursal.seDescuentaAPartirDe())
-			return remeraTipo.descuento()
-		else return 0
+			return remeraTipo.descuento() 
+		else return 1
 	}
 	
-	method hayConvenio() =
-		sucursal.hayConvenioCon( remeraTipo.autor() )
-		
 	method subtotal() = remeraTipo.precio() * cantidadDeRemeras
 	
-	method costo() = self.subtotal() - self.descuento() * self.subtotal()
+	method costo() = self.subtotal() * self.descuento()
 }
